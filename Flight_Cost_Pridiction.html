@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#101c3b" />
+  <title>FlightFare — Flight Cost Prediction</title>
+  <style>
+    :root { --navy:#101c3b; --blue:#315efb; --blue2:#5e7cff; --ink:#14213d; --muted:#667085; --line:#e4e9f3; --surface:#fff; --bg:#f4f7fc; --green:#087f5b; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color:var(--ink); background:var(--bg); }
+    .hero { background: radial-gradient(circle at 78% 18%, rgba(95,126,255,.36), transparent 30%), linear-gradient(135deg,#101c3b 0%,#192c5d 58%,#263e84 100%); color:white; padding:26px 22px 96px; }
+    .nav { max-width:1120px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:-.4px; font-size:20px; }
+    .brand-mark { width:38px; height:38px; border-radius:12px; display:grid; place-items:center; background:#ffffff1b; border:1px solid #ffffff36; font-size:20px; }
+    .nav-note { font-size:13px; color:#dbe4ff; }
+    .hero-copy { max-width:1120px; margin:55px auto 0; }
+    .eyebrow { color:#cbd6ff; text-transform:uppercase; letter-spacing:2px; font-weight:750; font-size:11px; }
+    h1 { font-size:clamp(34px,5vw,54px); letter-spacing:-1.8px; line-height:1.07; margin:14px 0 14px; max-width:680px; }
+    .hero-copy p { color:#d7def6; max-width:600px; line-height:1.7; margin:0; font-size:16px; }
+    .layout { max-width:1120px; margin:-58px auto 56px; padding:0 22px; position:relative; }
+    .main-card { display:grid; grid-template-columns:minmax(0,1.45fr) minmax(280px,.8fr); background:white; border-radius:24px; box-shadow:0 22px 65px #1b32611c; overflow:hidden; border:1px solid #e8edf7; }
+    .form-side { padding:30px; }
+    .section-title { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .section-title h2 { font-size:20px; margin:0; letter-spacing:-.4px; }
+    .section-title .icon { width:34px; height:34px; display:grid; place-items:center; border-radius:11px; background:#edf1ff; color:var(--blue); font-size:17px; }
+    .sub { color:var(--muted); font-size:13px; margin:0 0 25px 44px; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:17px 15px; }
+    .field { display:flex; flex-direction:column; gap:8px; min-width:0; }
+    .field.full { grid-column:1/-1; }
+    label { font-size:12px; font-weight:750; color:#475467; }
+    select, input { width:100%; border:1px solid #d9e1ef; background:#fff; border-radius:11px; padding:12px 12px; font:inherit; font-size:14px; color:#18233e; outline:none; min-height:45px; transition:border .15s, box-shadow .15s; }
+    select:focus, input:focus { border-color:#6b86ff; box-shadow:0 0 0 3px #315efb16; }
+    .hint { color:#8490a5; font-size:11px; margin-top:-3px; }
+    .predict-btn { width:100%; margin-top:23px; border:0; background:linear-gradient(95deg,var(--blue),#5277ff); color:white; padding:15px 18px; border-radius:12px; font-weight:800; font-size:15px; cursor:pointer; box-shadow:0 8px 20px #315efb2c; transition:transform .15s,opacity .15s; }
+    .predict-btn:hover { transform:translateY(-1px); }
+    .predict-btn:disabled { opacity:.6; cursor:wait; transform:none; }
+    .right-side { background:linear-gradient(160deg,#f6f8ff,#eef2ff); padding:30px 25px; border-left:1px solid #e5eafd; display:flex; flex-direction:column; }
+    .result-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .result-top h3 { margin:0; font-size:15px; }
+    .status { font-size:10px; letter-spacing:.5px; text-transform:uppercase; color:#63708a; background:#e5eafe; padding:7px 9px; border-radius:20px; font-weight:800; white-space:nowrap; }
+    .price-panel { margin-top:23px; padding:21px 18px; border-radius:17px; background:white; border:1px solid #e3e9fc; }
+    .price-label { color:#7b869d; font-size:12px; font-weight:650; }
+    .price { color:#182951; font-size:clamp(30px,3.5vw,42px); font-weight:850; letter-spacing:-1.5px; margin:6px 0 4px; overflow-wrap:anywhere; }
+    .estimate-note { font-size:11px; color:#8792a8; line-height:1.5; }
+    .result-details { margin-top:19px; display:grid; gap:0; }
+    .detail { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 0; border-bottom:1px solid #dfe6f5; font-size:12px; }
+    .detail span { color:#77839a; }
+    .detail strong { color:#243251; font-size:12px; text-align:right; }
+    .message { margin-top:19px; padding:12px; font-size:12px; border-radius:11px; line-height:1.55; color:#596780; background:#e9eefc; }
+    .message.error { color:#9b2c2c; background:#fff0f0; }
+    .footnote { max-width:1120px; margin:0 auto; padding:0 22px; color:#7a879c; font-size:11px; line-height:1.65; }
+    .footnote strong { color:#5d6a81; }
+    .api-indicator { display:inline-flex; gap:7px; align-items:center; }
+    .dot { width:7px; height:7px; background:#d49c2a; border-radius:50%; display:inline-block; }
+    .dot.online { background:#1aa779; }
+    @media (max-width:800px) { .main-card { grid-template-columns:1fr; } .right-side { border-left:0; border-top:1px solid #e5eafd; } .hero-copy { margin-top:40px; } .form-side,.right-side { padding:24px; } }
+    @media (max-width:480px) { .form-grid { grid-template-columns:1fr; } .field.full { grid-column:auto; } .hero { padding-left:16px; padding-right:16px; } .layout,.footnote { padding-left:12px; padding-right:12px; } .nav-note { max-width:115px; text-align:right; } h1 { letter-spacing:-1.1px; } }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <nav class="nav">
+      <div class="brand"><span class="brand-mark">✈</span><span>FlightFare<span style="color:#91a8ff">.</span></span></div>
+      <div class="nav-note"><span class="api-indicator"><i class="dot" id="apiDot"></i><span id="apiStatus">Checking prediction API…</span></span></div>
+    </nav>
+    <div class="hero-copy">
+      <div class="eyebrow">Machine learning · Flight price estimator</div>
+      <h1>Plan your next trip<br>with a smarter estimate.</h1>
+      <p>Enter your journey details to estimate a flight fare. This student project connects a clean HTML interface to a machine-learning model running from a Jupyter Notebook.</p>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="main-card" aria-label="Flight cost prediction form">
+      <div class="form-side">
+        <div class="section-title"><span class="icon">↗</span><h2>Journey details</h2></div>
+        <p class="sub">Fill in your route and travel preferences.</p>
+        <form id="flightForm">
+          <div class="form-grid">
+            <div class="field">
+              <label for="source">FROM</label>
+              <select id="source" name="source" required>
+                <option>Delhi</option><option>Mumbai</option><option>Bengaluru</option><option>Hyderabad</option><option>Chennai</option><option>Kolkata</option><option>Jaipur</option><option>Lucknow</option><option>Ahmedabad</option><option>Pune</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="destination">TO</label>
+              <select id="destination" name="destination" required>
+                <option>Mumbai</option><option>Delhi</option><option>Bengaluru</option><option>Hyderabad</option><option>Chennai</option><option>Kolkata</option><option>Jaipur</option><option>Lucknow</option><option>Ahmedabad</option><option>Pune</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="journey_date">TRAVEL DATE</label>
+              <input id="journey_date" name="journey_date" type="date" required />
+            </div>
+            <div class="field">
+              <label for="departure_time">PREFERRED DEPARTURE</label>
+              <input id="departure_time" name="departure_time" type="time" value="09:00" required />
+            </div>
+            <div class="field">
+              <label for="airline">AIRLINE</label>
+              <select id="airline" name="airline" required>
+                <option>IndiGo</option><option>Air India</option><option>Air India Express</option><option>SpiceJet</option><option>Akasa Air</option><option>Vistara</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="travel_class">CABIN CLASS</label>
+              <select id="travel_class" name="travel_class" required><option>Economy</option><option>Business</option></select>
+            </div>
+            <div class="field">
+              <label for="total_stops">NUMBER OF STOPS</label>
+              <select id="total_stops" name="total_stops" required><option value="0">Non-stop</option><option value="1">1 stop</option><option value="2">2 stops</option></select>
+            </div>
+            <div class="field">
+              <label for="booking_days_before">BOOKING IN ADVANCE</label>
+              <select id="booking_days_before" name="booking_days_before" required><option value="0">Today / last minute</option><option value="3">3 days</option><option value="7">1 week</option><option value="14">2 weeks</option><option value="21" selected>3 weeks</option><option value="30">1 month</option><option value="45">45 days</option><option value="60">60 days</option><option value="90">90 days</option></select>
+            </div>
+          </div>
+          <button class="predict-btn" id="predictButton" type="submit">Predict flight cost <span aria-hidden="true">→</span></button>
+        </form>
+      </div>
+      <aside class="right-side">
+        <div class="result-top"><h3>Prediction summary</h3><span class="status">ML estimate</span></div>
+        <div class="price-panel" aria-live="polite">
+          <div class="price-label">Estimated one-way fare</div>
+          <div class="price" id="priceValue">₹ —</div>
+          <div class="estimate-note" id="priceNote">Your estimated fare will appear here after prediction.</div>
+        </div>
+        <div class="result-details">
+          <div class="detail"><span>Route distance</span><strong id="distanceValue">—</strong></div>
+          <div class="detail"><span>Estimated flight time</span><strong id="durationValue">—</strong></div>
+          <div class="detail"><span>Model</span><strong id="modelValue">Random Forest</strong></div>
+        </div>
+        <div class="message" id="messageBox">Connect to the notebook API to start predicting. Run the notebook cells first, including the final API cell.</div>
+      </aside>
+    </section>
+  </main>
+  <footer class="footnote"><strong>Student project disclaimer:</strong> This demo is trained on synthetic sample data and does not fetch live airline prices. Results are for learning and demonstration only, not a booking quote. Actual fares depend on availability, taxes, fare rules, baggage, and real-time demand.</footer>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:5000';
+    const form = document.getElementById('flightForm');
+    const predictButton = document.getElementById('predictButton');
+    const apiDot = document.getElementById('apiDot');
+    const apiStatus = document.getElementById('apiStatus');
+    const messageBox = document.getElementById('messageBox');
+    const dateInput = document.getElementById('journey_date');
+
+    function localISODate(date) {
+      const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+      return local.toISOString().slice(0, 10);
+    }
+    const today = new Date();
+    dateInput.min = localISODate(today);
+    const defaultDate = new Date(); defaultDate.setDate(defaultDate.getDate() + 21);
+    dateInput.value = localISODate(defaultDate);
+
+    async function checkApi() {
+      try {
+        const response = await fetch(`${API_BASE}/health`, { method: 'GET' });
+        if (!response.ok) throw new Error('API not ready');
+        apiDot.classList.add('online'); apiStatus.textContent = 'Prediction API connected';
+        messageBox.classList.remove('error');
+        messageBox.textContent = 'API connected. Complete the form and select “Predict flight cost”.';
+      } catch (err) {
+        apiDot.classList.remove('online'); apiStatus.textContent = 'API offline';
+        messageBox.textContent = 'API not connected. Open Flight_Cost_Prediction.ipynb, run all cells, and keep the notebook kernel running.';
+      }
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const source = document.getElementById('source').value;
+      const destination = document.getElementById('destination').value;
+      if (source === destination) {
+        messageBox.classList.add('error'); messageBox.textContent = 'Please select two different cities.'; return;
+      }
+      const payload = {
+        source,
+        destination,
+        journey_date: dateInput.value,
+        departure_time: document.getElementById('departure_time').value,
+        airline: document.getElementById('airline').value,
+        travel_class: document.getElementById('travel_class').value,
+        total_stops: Number(document.getElementById('total_stops').value),
+        booking_days_before: Number(document.getElementById('booking_days_before').value)
+      };
+      predictButton.disabled = true; predictButton.textContent = 'Calculating estimate…';
+      messageBox.classList.remove('error'); messageBox.textContent = 'Sending journey details to the model…';
+      try {
+        const response = await fetch(`${API_BASE}/predict`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Unable to predict this fare.');
+        document.getElementById('priceValue').textContent = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(result.predicted_price_inr);
+        document.getElementById('priceNote').textContent = `For ${payload.source} → ${payload.destination}, one way`;
+        document.getElementById('distanceValue').textContent = `${new Intl.NumberFormat('en-IN').format(result.route_distance_km)} km`;
+        const hours = Math.floor(result.estimated_duration_minutes / 60);
+        const minutes = result.estimated_duration_minutes % 60;
+        document.getElementById('durationValue').textContent = `${hours}h ${minutes}m (approx.)`;
+        document.getElementById('modelValue').textContent = result.model;
+        messageBox.textContent = result.disclaimer;
+      } catch (err) {
+        messageBox.classList.add('error'); messageBox.textContent = err.message || 'Could not connect to the local API. Check that the notebook API cell is running.';
+      } finally {
+        predictButton.disabled = false; predictButton.innerHTML = 'Predict flight cost <span aria-hidden="true">→</span>';
+      }
+    });
+
+    checkApi();
+  </script>
+</body>
+</html>
