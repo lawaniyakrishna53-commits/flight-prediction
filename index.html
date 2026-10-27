@@ -67,7 +67,7 @@
     <div class="hero-copy">
       <div class="eyebrow">Machine learning · Flight price estimator</div>
       <h1>Plan your next trip<br>with a smarter estimate.</h1>
-      <p>Enter your journey details to estimate a flight fare. This student project connects a clean HTML interface to a machine-learning model running from a Jupyter Notebook.</p>
+      <p>Enter your journey details to estimate a flight fare. This student project connects a clean HTML interface to a machine-learning model served by a local Flask API.</p>
     </div>
   </header>
 
@@ -132,11 +132,11 @@
           <div class="detail"><span>Estimated flight time</span><strong id="durationValue">—</strong></div>
           <div class="detail"><span>Model</span><strong id="modelValue">Random Forest</strong></div>
         </div>
-        <div class="message" id="messageBox">Connect to the notebook API to start predicting. Run the notebook cells first, including the final API cell.</div>
+        <div class="message" id="messageBox">Start the local API with <code>python app.py</code> to begin predicting.</div>
       </aside>
     </section>
   </main>
-  <footer class="footnote"><strong>Student project disclaimer:</strong> This demo is trained on synthetic sample data and does not fetch live airline prices. Results are for learning and demonstration only, not a booking quote. Actual fares depend on availability, taxes, fare rules, baggage, and real-time demand.</footer>
+  <footer class="footnote"><strong>Student project disclaimer:</strong> This demo is trained on synthetic sample data and does not fetch live airline prices. Results are for learning and demonstration only, not a booking quote. Actual fares depend on availability, taxes, fare rules, baggage, and real-time demand. <a href="README.md">See the project README for setup instructions.</a></footer>
 
   <script>
     const API_BASE = 'http://127.0.0.1:5000';
@@ -165,7 +165,7 @@
         messageBox.textContent = 'API connected. Complete the form and select “Predict flight cost”.';
       } catch (err) {
         apiDot.classList.remove('online'); apiStatus.textContent = 'API offline';
-        messageBox.textContent = 'API not connected. Open Flight_Cost_Prediction.ipynb, run all cells, and keep the notebook kernel running.';
+        messageBox.textContent = 'API not connected. Start it with "python app.py" from the project folder, then refresh this page.';
       }
     }
 
@@ -203,7 +203,7 @@
         document.getElementById('modelValue').textContent = result.model;
         messageBox.textContent = result.disclaimer;
       } catch (err) {
-        messageBox.classList.add('error'); messageBox.textContent = err.message || 'Could not connect to the local API. Check that the notebook API cell is running.';
+        messageBox.classList.add('error'); messageBox.textContent = err.message || 'Could not connect to the local API. Check that app.py is running.';
       } finally {
         predictButton.disabled = false; predictButton.innerHTML = 'Predict flight cost <span aria-hidden="true">→</span>';
       }
